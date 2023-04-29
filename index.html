@@ -55,7 +55,7 @@ const groupIdInput = document.getElementById('group-id');
 const participantNumberInput = document.getElementById('participant-number');
 
 // Initialize Twilio Chat API
-const chatClient = new Twilio.Chat.Client(token);
+const chatClient = new Twilio.Chat.Client(apiKey, apiSecret, { region: 'us1' });
 
 // Handle form submission
 form.addEventListener('submit', (event) => {
@@ -65,20 +65,33 @@ form.addEventListener('submit', (event) => {
   const groupId = groupIdInput.value;
   const participantNumber = participantNumberInput.value;
 
-  // Add participant to group
-  chatClient.getChannelByUniqueName(groupId)
-    .then(channel => {
-      return channel.add(memberIdentity);
+  // Get or create the channel
+  chatClient.getPublicChannelDescriptors()
+    .then(descriptors => {
+      let channelDescriptor = descriptors.find(descriptor => descriptor.friendlyName === groupId);
+
+      if (!channelDescriptor) {
+        return chatClient.createChannel({ uniqueName: groupId, friendlyName: groupId, isPrivate: false })
+          .then(channel => channelDescriptor = { sid: channel.sid, friendlyName: channel.friendlyName });
+      }
+
+      return channelDescriptor;
     })
-    .then(() => {
-      console.log('Participant added successfully');
-      // Reset form
-      form.reset();
+    .then(channelDescriptor => {
+      // Add participant to group
+      return chatClient.getChannelBySid(channelDescriptor.sid)
+        .then(channel => channel.add(participantNumber))
+        .then(() => {
+          console.log('Participant added successfully');
+          // Reset form
+          form.reset();
+        });
     })
     .catch(error => {
       console.error('Failed to add participant:', error);
     });
 });
+
 
     </script>
   </body>
