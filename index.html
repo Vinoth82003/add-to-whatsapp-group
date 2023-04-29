@@ -1,73 +1,84 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Add Participant to WhatsApp Group</title>
+    <meta charset="UTF-8">
+    <title>Add participants to WhatsApp group</title>
     <style>
-      form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 50px;
-      }
+      body {
+  font-family: Arial, sans-serif;
+}
 
-      label {
-        margin-top: 20px;
-        font-size: 18px;
-      }
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 50px;
+}
 
-      input[type="text"] {
-        padding: 10px;
-        border-radius: 5px;
-        border: none;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-        width: 300px;
-        font-size: 16px;
-        margin-top: 10px;
-      }
+label, input {
+  margin: 10px 0;
+}
 
-      input[type="submit"] {
-        background-color: #25d366;
-        color: #fff;
-        font-size: 18px;
-        padding: 10px;
-        border-radius: 5px;
-        border: none;
-        width: 200px;
-        margin-top: 20px;
-        cursor: pointer;
-      }
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3e8e41;
+}
+
     </style>
-    <script src="//media.twiliocdn.com/sdk/js/chat/v4.0/twilio-chat.min.js"></script>
   </head>
   <body>
-    <h1>Add Participant to WhatsApp Group</h1>
     <form>
       <label for="group-id">Group ID:</label>
       <input type="text" id="group-id" name="group-id" required><br>
-      <label for="participant-number">Participant's Phone Number:</label>
+
+      <label for="participant-number">Participant number:</label>
       <input type="text" id="participant-number" name="participant-number" required><br>
-      <input type="submit" value="Add Participant">
+
+      <button type="submit">Add participant</button>
     </form>
 
+    <script src="//media.twiliocdn.com/sdk/js/chat/v4.0/twilio-chat.min.js"></script>
     <script>
-      const form = document.querySelector('form');
-      const groupIdInput = document.getElementById('group-id');
-      const participantNumberInput = document.getElementById('participant-number');
+      // Get form and input elements
+const form = document.querySelector('form');
+const groupIdInput = document.getElementById('group-id');
+const participantNumberInput = document.getElementById('participant-number');
 
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const groupId = groupIdInput.value;
-        const participantNumber = participantNumberInput.value;
-        
-        // Call the WhatsApp API to add the participant to the group
-        api.addParticipantToGroup(groupId, participantNumber)
-          .then(() => {
-            alert('Participant added successfully');
-          })
-          .catch((err) => {
-            console.error('Failed to add participant:', err);
-          });
+// Initialize Twilio Chat API
+Twilio.Chat.Client.create(token).then(chatClient => {
+  // Handle form submission
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    // Get group ID and participant number from form inputs
+    const groupId = groupIdInput.value;
+    const participantNumber = participantNumberInput.value;
+
+    // Add participant to group
+    chatClient.addParticipantToChannel(groupId, participantNumber)
+      .then(() => {
+        console.log('Participant added successfully');
+        // Reset form
+        form.reset();
+      })
+      .catch(error => {
+        console.error('Failed to add participant:', error);
       });
+  });
+}).catch(error => {
+  console.error('Failed to create Twilio Chat client:', error);
+});
+
     </script>
   </body>
 </html>
