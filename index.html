@@ -37,61 +37,49 @@ button:hover {
     </style>
   </head>
   <body>
+    <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Add participant to WhatsApp group</title>
+  </head>
+  <body>
     <form>
       <label for="group-id">Group ID:</label>
       <input type="text" id="group-id" name="group-id" required><br>
 
-      <label for="participant-number">Participant number:</label>
-      <input type="text" id="participant-number" name="participant-number" required><br>
+      <label for="participant-id">Participant ID:</label>
+      <input type="text" id="participant-id" name="participant-id" required><br>
 
       <button type="submit">Add participant</button>
     </form>
 
-    <script src="//media.twiliocdn.com/sdk/js/chat/v4.0/twilio-chat.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-// Get form and input elements
-const form = document.querySelector('form');
-const groupIdInput = document.getElementById('group-id');
-const participantNumberInput = document.getElementById('participant-number');
-
-// Initialize Twilio Chat API
-const chatClient = new Twilio.Chat.Client(apiKey, apiSecret, { region: 'us1' });
-
 // Handle form submission
-form.addEventListener('submit', (event) => {
+$('form').submit(function(event) {
   event.preventDefault();
 
-  // Get group ID and participant number from form inputs
-  const groupId = groupIdInput.value;
-  const participantNumber = participantNumberInput.value;
+  // Get group ID and participant ID from form inputs
+  const groupId = $('#group-id').val();
+  const participantId = $('#participant-id').val();
 
-  // Get or create the channel
-  chatClient.getPublicChannelDescriptors()
-    .then(descriptors => {
-      let channelDescriptor = descriptors.find(descriptor => descriptor.friendlyName === groupId);
-
-      if (!channelDescriptor) {
-        return chatClient.createChannel({ uniqueName: groupId, friendlyName: groupId, isPrivate: false })
-          .then(channel => channelDescriptor = { sid: channel.sid, friendlyName: channel.friendlyName });
-      }
-
-      return channelDescriptor;
-    })
-    .then(channelDescriptor => {
-      // Add participant to group
-      return chatClient.getChannelBySid(channelDescriptor.sid)
-        .then(channel => channel.add(participantNumber))
-        .then(() => {
-          console.log('Participant added successfully');
-          // Reset form
-          form.reset();
-        });
-    })
-    .catch(error => {
+  // Send POST request to add participant to group
+  $.ajax({
+    url: `https://api.chat-api.com/instance${instanceId}/addGroupParticipant?token=${token}`,
+    type: 'POST',
+    data: JSON.stringify({ "groupId": groupId, "participant": participantId }),
+    contentType: 'application/json',
+    success: function(response) {
+      console.log('Participant added successfully:', response);
+      // Reset form
+      $('form')[0].reset();
+    },
+    error: function(xhr, status, error) {
       console.error('Failed to add participant:', error);
-    });
+    }
+  });
 });
-
 
     </script>
   </body>
