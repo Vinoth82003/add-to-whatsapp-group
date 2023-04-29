@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add Participant to WhatsApp Group</title>
+    <style>
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+      }
+
+      label {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        width: 300px;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+
+      input[type="submit"] {
+        background-color: #25d366;
+        color: #fff;
+        font-size: 18px;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        width: 200px;
+        margin-top: 20px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Add Participant to WhatsApp Group</h1>
+    <form>
+      <label for="group-id">Group ID:</label>
+      <input type="text" id="group-id" name="group-id" required><br>
+      <label for="participant-number">Participant's Phone Number:</label>
+      <input type="text" id="participant-number" name="participant-number" required><br>
+      <input type="submit" value="Add Participant">
+    </form>
+
+    <script>
+      const form = document.querySelector('form');
+      const groupIdInput = document.getElementById('group-id');
+      const participantNumberInput = document.getElementById('participant-number');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const groupId = groupIdInput.value;
+        const participantNumber = participantNumberInput.value;
+        
+        // Call the WhatsApp API to add the participant to the group
+        api.addParticipantToGroup(groupId, participantNumber)
+          .then(() => {
+            alert('Participant added successfully');
+          })
+          .catch((err) => {
+            console.error('Failed to add participant:', err);
+          });
+      });
+    </script>
+  </body>
+</html>
